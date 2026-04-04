@@ -35,6 +35,16 @@ def init_db():
     """)
 
     cur.execute("""
+                CREATE TABLE IF NOT EXISTS milestone_hits
+                (
+                    milestone
+                    INTEGER
+                    PRIMARY
+                    KEY
+                )
+                """)
+
+    cur.execute("""
         INSERT OR IGNORE INTO settings (id, chat_id, dashboard_message_id, current_date, today_count)
         VALUES (1, NULL, NULL, NULL, 0)
     """)
@@ -108,12 +118,15 @@ def reset_daily_counts(new_date: str):
     conn = get_connection()
     cur = conn.cursor()
 
-    cur.execute("UPDATE settings SET today_count = 0, current_date = ? WHERE id = 1", (new_date,))
+    cur.execute(
+        "UPDATE settings SET today_count = 0, current_date = ? WHERE id = 1",
+        (new_date,)
+    )
     cur.execute("DELETE FROM daily_user_counts")
+    cur.execute("DELETE FROM milestone_hits")
 
     conn.commit()
     conn.close()
-
 
 def increment_user_count(user_id: int, username: Optional[str], display_name: str):
     conn = get_connection()
@@ -144,3 +157,51 @@ def get_leaderboard(limit: int = 10):
     rows = cur.fetchall()
     conn.close()
     return rows
+
+def get_dashboard_message_id() -> int | None:
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT dashboard_message_id FROM settings WHERE id = 1")
+    row = cur.fetchone()
+    conn.close()
+    return row["dashboard_message_id"] if row and row["dashboard_message_id"] else None
+
+
+def get_chat_id() -> int | None:
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT chat_id FROM settings WHERE id = 1")
+    row = cur.fetchone()
+    conn.close()
+    return row["chat_id"] if row and row["chat_id"] else None
+
+
+def get_current_date() -> str | None:
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT current_date FROM settings WHERE id = 1")
+    row = cur.fetchone()
+    conn.close()
+    return row["current_date"] if row else None
+
+def has_milestone_been_hit(milestone: int) -> bool:
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT 1 FROM milestone_hits WHERE milestone = ?",
+        (milestone,)
+    )
+    row = cur.fetchone()
+    conn.close()
+    return row is not None
+
+
+def mark_milestone_hit(milestone: int):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT OR IGNORE INTO milestone_hits (milestone) VALUES (?)",
+        (milestone,)
+    )
+    conn.commit()
+    conn.close()
