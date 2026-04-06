@@ -24,7 +24,6 @@ from db import (
     get_chat_id,
     get_current_date,
     reset_daily_counts,
-    set_current_date,
     has_milestone_been_hit,
     mark_milestone_hit,
 )
@@ -34,7 +33,7 @@ GOAL = 40
 MILESTONES = (10, 20, 30, 40)
 
 # Replace this later with a Telegram file_id
-GOAL_ANIMATION = "AAMCAgADGQEAAUZpHWnQ-zwlr2vHezt03iEbchlhZBNjAAJekwAClJGJSuDp5mGoxcPSAQAHbQADOwQ"
+GOAL_ANIMATION = "CgACAgIAAxkBAAFGeM1p0hIn2BPy-9ukL7GBA-y-VWxqJgACt48AAqARkUph1fssf_3FEjsE"
 
 
 def get_status_text(today_count: int) -> str:
@@ -44,7 +43,7 @@ def get_status_text(today_count: int) -> str:
         return "Ziel erreicht"
     if today_count >= 30:
         return "Fast geschafft"
-    if today_count >= 20
+    if today_count >= 20:
         return "Starker Lauf"
     if today_count >= 10:
         return "Kommt in Fahrt"

@@ -1,8 +1,10 @@
 import sqlite3
 from pathlib import Path
+import os
+from pathlib import Path
 from typing import Optional
 
-DB_PATH = Path("counter.db")
+DB_PATH = Path(os.getenv("DB_PATH", "counter.db"))
 
 
 def get_connection():
