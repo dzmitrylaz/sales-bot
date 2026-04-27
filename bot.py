@@ -29,31 +29,31 @@ from db import (
 )
 
 
-GOAL = 40
-MILESTONES = (10, 20, 30, 40)
+GOAL = 50
+STEP = 10
+MILESTONES = tuple(range(STEP, GOAL + STEP, STEP))
 
 # Replace this later with a Telegram file_id
 GOAL_ANIMATION = "CgACAgIAAxkBAAFGeM1p0hIn2BPy-9ukL7GBA-y-VWxqJgACt48AAqARkUph1fssf_3FEjsE"
 
 
 def get_status_text(today_count: int) -> str:
-    if today_count > 40:
+    if today_count > GOAL:
         return "Ziel übertroffen"
-    if today_count >= 40:
+    if today_count >= GOAL:
         return "Ziel erreicht"
-    if today_count >= 30:
+    if today_count >= int(GOAL * 0.8):
         return "Fast geschafft"
-    if today_count >= 20:
+    if today_count >= int(GOAL * 0.6):
         return "Starker Lauf"
-    if today_count >= 10:
+    if today_count >= int(GOAL * 0.3):
         return "Kommt in Fahrt"
     if today_count > 0:
         return "Guter Start"
     return "Warten auf den ersten Verkauf"
 
-
 def get_next_milestone(today_count: int) -> str:
-    for milestone in (10, 20, 30, 40):
+    for milestone in MILESTONES:
         if today_count < milestone:
             return str(milestone)
     return "Ziel erreicht"
@@ -65,7 +65,7 @@ def build_dashboard_text(today_count: int) -> str:
     lines = [
         "🔥 <b>SALES-DASHBOARD</b>",
         "",
-        f"Heute: {today_count} / 40",
+        f"Heute: {today_count} / {GOAL}",
         f"Status: <b>{get_status_text(today_count)}</b>",
         f"Next milestone: <b>{get_next_milestone(today_count)}</b>",
         "",
@@ -111,16 +111,30 @@ async def update_dashboard(bot) -> None:
 
 
 def get_milestone_message(milestone: int) -> str:
-    if milestone == 10:
-        return "✅ <b>10 Verkäufe erreicht!</b>\nGuter Start — es geht los."
-    if milestone == 20:
-        return "🔥 <b>20 Verkäufe erreicht!</b>\nHalbzeit."
-    if milestone == 30:
-        return "🚀 <b>30 Verkäufe erreicht!</b>\nJetzt der letzte Push."
-    if milestone == 40:
-        return "🎉 <b>ZIEL ERREICHT — 40 / 40!</b>\nStarke Leistung."
-    return f"<b>{milestone} erreicht!</b>"
+    if milestone >= GOAL:
+        return f"🎉 <b>ZIEL ERREICHT — {GOAL} / {GOAL}!</b>\nStarke Leistung."
 
+    remaining = GOAL - milestone
+
+    if remaining == STEP:
+        return (
+            f"🚀 <b>{milestone} Verkäufe erreicht!</b>\n"
+            f"Letzter Push — nur noch {remaining}!"
+        )
+
+    if milestone >= int(GOAL * 0.5) and milestone < int(GOAL * 0.8):
+        return f"💪 <b>{milestone} Verkäufe erreicht!</b>\nWeiter so — noch {remaining}!"
+
+    if milestone >= int(GOAL * 0.8):
+        return (
+            f"🔥 <b>{milestone} Verkäufe erreicht!</b>\n"
+            f"Fast geschafft — noch {remaining}!"
+        )
+
+    return (
+        f"🔥 <b>{milestone} Verkäufe erreicht!</b>\n"
+        f"Noch {remaining} bis zum Ziel."
+    )
 
 async def maybe_send_milestone_message(bot, chat_id: int, today_count: int) -> None:
     for milestone in MILESTONES:
@@ -133,7 +147,7 @@ async def maybe_send_milestone_message(bot, chat_id: int, today_count: int) -> N
                 parse_mode=ParseMode.HTML,
             )
 
-            if milestone == 40:
+            if milestone == GOAL:
                 await bot.send_animation(
                     chat_id=chat_id,
                     animation=GOAL_ANIMATION,
