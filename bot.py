@@ -29,7 +29,7 @@ from db import (
 )
 
 
-GOAL = 50
+GOAL = 70
 STEP = 10
 MILESTONES = tuple(range(STEP, GOAL + STEP, STEP))
 
