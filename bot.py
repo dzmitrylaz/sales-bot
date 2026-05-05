@@ -49,8 +49,8 @@ MILESTONES = tuple(range(STEP, GOAL + STEP, STEP))
 
 # Progress report every 2 hours during German daytime.
 PROGRESS_REPORT_HOURS = 2
-PROGRESS_REPORT_START_HOUR = 9
-PROGRESS_REPORT_END_HOUR = 21
+PROGRESS_REPORT_START_HOUR = 10
+PROGRESS_REPORT_END_HOUR = 20
 
 # Replace this with a valid Telegram animation file_id if needed.
 GOAL_ANIMATION = "CgACAgIAAxkBAAFGeM1p0hIn2BPy-9ukL7GBA-y-VWxqJgACt48AAqARkUph1fssf_3FEjsE"
